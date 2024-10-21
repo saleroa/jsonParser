@@ -1,3 +1,5 @@
+#pragma once
+
 #define TYPE_false 0
 #define TYPE_true 1
 #define TYPE_num 2
@@ -18,11 +20,6 @@ typedef struct JsonItem
     struct JsonItem *pre, *next;
     
 }JsonItem;
-
-// const char * readString(JsonItem *item,const char * json);
-// const char * readArray(JsonItem *item,const char * json);
-// const char * readObject(JsonItem *item,const char * json);
-// const char * readNum(JsonItem *item,const char * json);
 
 const char * parseValue(JsonItem *item,  const char * json);
 

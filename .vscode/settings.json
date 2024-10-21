@@ -2,7 +2,7 @@
     "files.associations": {
         "stdio.h": "c",
         "string.h": "c",
-        "parse.h": "c"
-        
+        "parse.h": "c",
+        "print.h": "c"
     }
 }
