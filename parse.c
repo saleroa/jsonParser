@@ -14,7 +14,7 @@ void printCharArray(char *array);
 
 
 
-#define TESTMODE
+// #define TESTMODE
 
 
 

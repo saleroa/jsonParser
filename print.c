@@ -13,6 +13,9 @@ char * printValue(JsonItem *item,int depth);
 
 char * printNorm(const char * input);
 
+
+// #define TESTMODE
+
 char * printValue(JsonItem *item,int depth){
 	char *out=0;
 	if (!item) return 0;
@@ -89,12 +92,14 @@ char * printArray(JsonItem *item,int depth){
 	int numsOfEntities = 0, fail = 0, i = 0;
 	size_t tmplen = 0;
 
-
 	// 统计 entities 的数量
 	while(child) {
 		numsOfEntities++;
-		child = child->next;
-		}
+		// parse 过后的 child 停留在最后一位
+		// 这里将 child 指针移到最前面
+		item->child = child;
+		child = child->pre;
+	}
 
 	// 如果数量为 0，输出空的 []
 	if(!numsOfEntities){
@@ -108,6 +113,8 @@ char * printArray(JsonItem *item,int depth){
 	if(!entities) return NULL;
 	memset(entities,0,numsOfEntities*sizeof(char*));
 	child = item->child;
+	
+	
 	while(child && !fail){
 		ret = printValue(child,depth+1);
 		entities[i++] = ret;
@@ -116,7 +123,8 @@ char * printArray(JsonItem *item,int depth){
 		else fail = 1;
 		child = child->next;
 	}
-
+	// 最后末尾的换行符
+	len++;
 	if(!fail) out = (char*)malloc(len);
 	if(!out) fail = 1;
 	
@@ -139,7 +147,12 @@ char * printArray(JsonItem *item,int depth){
 		free(entities[i]);
 	}
 	free(entities);
-	*ptr++ = ']';*ptr++ = 0;
+	*ptr++ = ']';*ptr++ = '\n'; *ptr = 0;
+
+	#ifdef TESTMODE
+		printf("%c",*(ptr--));
+	#endif
+
 	return out;
 }
 
@@ -153,8 +166,12 @@ char * printObject(JsonItem *item,int depth){
 	int numOfEntities=0,fail = 0;
 	size_t tmplen = 0;
 
-	while(child) numOfEntities++,child = child->next;
-
+	while(child){
+		numOfEntities++;
+		item->child = child;
+		child = child->pre;
+	} 
+	
 	if(!numOfEntities){
 		out = (char*)malloc(depth+4);  // 为什么是这个长度
 		if(!out) return NULL;
@@ -180,6 +197,8 @@ char * printObject(JsonItem *item,int depth){
 		else fail = 1;
 		child = child->next;
 	}
+	// 最后末尾的位置换行一个
+	len++;
 	
 	if(!fail) out = (char*)malloc(len);
 	if(!out) fail = 1;
@@ -205,7 +224,11 @@ char * printObject(JsonItem *item,int depth){
 	}
 	free(names);free(entities);
 	for (i=0;i<depth-1;i++) *ptr++='\t';
-	*ptr++='}';*ptr++=0;
+	*ptr++='}';*ptr++='\n';*ptr = 0;
+
+	#ifdef TESTMODE
+		printf("%c",*(ptr--));
+	#endif
 
 	return out;
 }
