@@ -1,22 +1,30 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-
 #include"parse.h"
-
 
 const char * readString(JsonItem *item,const char * json);
 const char * readArray(JsonItem *item,const char * json);
 const char * readObject(JsonItem *item,const char * json);
 const char * readNum(JsonItem *item,const char * json);
-JsonItem * newItem();
-void printCharArray(char *array);
+const char * parseValue(JsonItem *item,  const char * json);
+int parseJson(JsonItem *item, const char *json);
 
+
+JsonItem * newItem();
+static void printCharArray(char *array);
 
 
 // #define TESTMODE
 
-
+int parseJson(JsonItem *item, const char *json){
+    const char * ptr = parseValue(item,json);
+    if (!ptr) {
+        fprintf(stderr, "wrong format of json\n");
+        return -1;
+    }
+    return 0;
+}
 
 const char * parseValue(JsonItem *item,  const char * json){
     // 如果传入的json指针为空，报错
@@ -216,7 +224,7 @@ JsonItem * newItem(){
 }
 
 
-void printCharArray(char *array) {
+static void printCharArray(char *array) {
     if (array != NULL) {
         while (*array != '\0') {
             printf("%c", *array);

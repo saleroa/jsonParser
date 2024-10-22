@@ -21,6 +21,6 @@ typedef struct JsonItem
     
 }JsonItem;
 
-const char * parseValue(JsonItem *item,  const char * json);
+int parseJson(JsonItem *item,  const char * json);
 
 JsonItem * newItem();

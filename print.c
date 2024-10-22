@@ -68,7 +68,7 @@ char * printString(JsonItem *item){
     return getString(item->stringValue);
 }
 
-// 用于打印 key 部分的 string
+// 用于打印 key 部分的 string, 并且带上双引号
 char * getString(const char * str){
     char * out = NULL, *ptr;
     size_t len = 0;
@@ -87,7 +87,10 @@ char * printArray(JsonItem *item,int depth){
 	char ** entities = NULL;
 	char * out, *ptr;
     char * ret;
-	int len = 5; /////////////////////////// ?????????? WHY 5
+    // 除了每行元素外的字符
+	// '[', '\n', '\n',']', '\0', '\n'  
+	// '\n',']' 这俩算最后一行元素的
+	int len = 4; 
 	JsonItem * child = item->child;
 	int numsOfEntities = 0, fail = 0, i = 0;
 	size_t tmplen = 0;
@@ -114,17 +117,15 @@ char * printArray(JsonItem *item,int depth){
 	memset(entities,0,numsOfEntities*sizeof(char*));
 	child = item->child;
 	
-	
 	while(child && !fail){
 		ret = printValue(child,depth+1);
 		entities[i++] = ret;
-		/////////////////////////////////////////// 这个长度不知道有无 bug
-		if(ret) len += strlen(ret) + 2; 
+
+		if(ret) len += strlen(ret) + 2; // + 2 是， ',' & '\n'
 		else fail = 1;
 		child = child->next;
 	}
-	// 最后末尾的换行符
-	len++;
+
 	if(!fail) out = (char*)malloc(len);
 	if(!out) fail = 1;
 	
@@ -138,16 +139,16 @@ char * printArray(JsonItem *item,int depth){
 		return NULL;
 	}
 
-	*out = '[';
-	ptr = out + 1; *ptr = 0;
+	*out = '['; ptr = out + 1;
+	*ptr++ = '\n'; *ptr = 0;
 	for(i=0;i<numsOfEntities;i++){
 		tmplen = strlen(entities[i]); // 
 		memcpy(ptr,entities[i],tmplen); ptr+=tmplen;
-		if(i != numsOfEntities-1) *ptr++ = ',',*ptr++ = ' '; *ptr = 0;
+		if(i != numsOfEntities-1) *ptr++ = ',',*ptr++ = '\n'; *ptr = 0;
 		free(entities[i]);
 	}
 	free(entities);
-	*ptr++ = ']';*ptr++ = '\n'; *ptr = 0;
+	*ptr++ = '\n';*ptr++ = ']'; *ptr++ = '\n'; *ptr = 0;
 
 	#ifdef TESTMODE
 		printf("%c",*(ptr--));

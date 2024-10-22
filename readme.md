@@ -1,6 +1,7 @@
 parse part     --done  
 parse test     --ok
----- without error return 
+optimization on error report      --done
+
 
 print part     --done
 parse test     --ok
