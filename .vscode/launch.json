@@ -8,7 +8,7 @@
             "name": "(gdb) 启动",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/zero/c/jsonParse/test",
+            "program": "/home/zero/c/jsonParse/printTest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

@@ -91,7 +91,10 @@ char * printArray(JsonItem *item,int depth){
 
 
 	// 统计 entities 的数量
-	while(child) numsOfEntities++;child = child->next;
+	while(child) {
+		numsOfEntities++;
+		child = child->next;
+		}
 
 	// 如果数量为 0，输出空的 []
 	if(!numsOfEntities){

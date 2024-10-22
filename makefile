@@ -1,9 +1,8 @@
-parseTest: parse.o parse_test.o
-	gcc -o parseTest parse.o  parse_test.o
+parseTest: parse.c parse_test.c
+	gcc -g -o parseTest parse.c  parse_test.c
 
-printTest: print.o print_test.o
-	gcc -o printTest print.o print_test.o
-
+printTest: print.c print_test.c
+	gcc -g -o printTest print.c print_test.c parse.c
 
 clean:
-	rm *.o  parseTest printTest test
+	rm *.o  parseTest printTest
