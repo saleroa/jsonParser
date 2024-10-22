@@ -49,7 +49,7 @@ char * printNorm(const char * input){
 // 打印数字
 char * printNum(JsonItem *item){
     char * out = NULL;
-    if(item->child == 0){
+    if(item->intValue == 0){
         // 申请两个位置就好,一个 0，一个 \0
         out = (char*)malloc(2);
         if(!out) return NULL;
