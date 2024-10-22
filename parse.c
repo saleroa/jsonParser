@@ -8,8 +8,8 @@ const char * readArray(JsonItem *item,const char * json);
 const char * readObject(JsonItem *item,const char * json);
 const char * readNum(JsonItem *item,const char * json);
 const char * parseValue(JsonItem *item,  const char * json);
+const char * trim(const char * str);
 int parseJson(JsonItem *item, const char *json);
-
 
 JsonItem * newItem();
 static void printCharArray(char *array);
@@ -29,6 +29,7 @@ int parseJson(JsonItem *item, const char *json){
 const char * parseValue(JsonItem *item,  const char * json){
     // 如果传入的json指针为空，报错
     if(!json){ return NULL;}
+    json = trim(json);
 
     // 特定类型判断
     if(!strncmp(json,"null",4) ||!strncmp(json,"NULL",4)){
@@ -36,7 +37,8 @@ const char * parseValue(JsonItem *item,  const char * json){
         #ifdef TESTMODE
             printf("%s\n","null");
         #endif
-        return json + 4;
+        // return json + 4;
+        return trim(json + 4);
     }
 
     if(!strncmp(json,"false",5) ||!strncmp(json,"FALSE",5)){
@@ -44,7 +46,8 @@ const char * parseValue(JsonItem *item,  const char * json){
         #ifdef TESTMODE
             printf("%s\n","false");
         #endif
-        return json + 5;
+        // return json + 5;
+        return trim(json + 5);
     }
     
 
@@ -53,7 +56,8 @@ const char * parseValue(JsonItem *item,  const char * json){
         #ifdef TESTMODE
             printf("%s\n","true");
         #endif
-        return json + 4;
+        // return json + 4;
+        return trim(json + 4);
     }
     
     // 读取string
@@ -81,7 +85,7 @@ const char * parseValue(JsonItem *item,  const char * json){
 }
 
 
-// 指针从引号到后引号的后一位
+// 指针从引号到后引号的后一位非空格
 const char * readString(JsonItem *item,const char * json){
     const char* ptr = json + 1;
     char * out, *res;
@@ -106,7 +110,8 @@ const char * readString(JsonItem *item,const char * json){
     item->stringValue = res;
     item->itemType = TYPE_string;
 
-    return ++ptr;
+    // return ++ptr;
+    return trim(++ptr);
 }
 
 // 指针从符号位到逗号
@@ -130,13 +135,15 @@ const char * readNum(JsonItem *item,const char * json){
     #endif
     item->intValue = sign * num;
     item->itemType = TYPE_num;
-    return ptr; // 指针指向了结束的 ，
+    // return ptr; // 指针指向了结束的 ，
+     return trim(ptr);
 }
 
 const char * readArray(JsonItem *item,const char * json){
     JsonItem *child;
     item->itemType = TYPE_arrry;
     const char * ptr = json+1;
+    ptr = trim(ptr);
 
     // 空的 array
     if(*ptr == ']'){return ptr+1;}
@@ -162,7 +169,7 @@ const char * readArray(JsonItem *item,const char * json){
         ptr = parseValue(item->child,++ptr);
         if(!ptr){return 0;}
     }
-    if(*ptr == ']') return ptr+1;
+    if(*ptr == ']') return trim(ptr+1);
     return NULL;
  }
 
@@ -172,6 +179,7 @@ const char * readObject(JsonItem *item,const char * json){
     JsonItem *child;
     item->itemType = TYPE_object;
     const char *ptr = json+1;
+    ptr = trim(ptr);
 
      // 空的 object
     if(*ptr == '}'){return ptr+1;} // return 到了 } 的下一位
@@ -202,7 +210,7 @@ const char * readObject(JsonItem *item,const char * json){
         newitem->pre = item->child;
         item->child = newitem;
 
-        ptr = readString(item->child,++ptr);
+        ptr = readString(item->child,trim(++ptr));
         if(!ptr){return NULL;}
         item->child->stringKey = item->child->stringValue;
         item->child->stringValue = NULL;
@@ -213,7 +221,7 @@ const char * readObject(JsonItem *item,const char * json){
         if(!ptr){return NULL;}
     }
 	
-	if (*ptr=='}') return ptr+1;	
+	if (*ptr=='}') return trim(ptr+1);	
 	return NULL;
 }
 
@@ -232,4 +240,9 @@ static void printCharArray(char *array) {
         }
     }
     printf("\n"); // 输出换行符，以便在控制台中格式化输出
+}
+
+const char * trim(const char * str){
+    while(*str == ' ') str++;
+    return str;
 }
