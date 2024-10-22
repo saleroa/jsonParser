@@ -88,9 +88,9 @@ char * printArray(JsonItem *item,int depth){
 	char * out, *ptr;
     char * ret;
     // 除了每行元素外的字符
-	// '[', '\n', '\n',']', '\0', '\n'  
-	// '\n',']' 这俩算最后一行元素的
-	int len = 4; 
+	// '[' | '\n' | '\n' | ']' | '\0' 
+	// '\n' | ']' 这俩算最后一行元素的
+	int len = 3; 
 	JsonItem * child = item->child;
 	int numsOfEntities = 0, fail = 0, i = 0;
 	size_t tmplen = 0;
@@ -118,7 +118,7 @@ char * printArray(JsonItem *item,int depth){
 	child = item->child;
 	
 	while(child && !fail){
-		ret = printValue(child,depth+1);
+		ret = printValue(child,depth);
 		entities[i++] = ret;
 
 		if(ret) len += strlen(ret) + 2; // + 2 是， ',' & '\n'
@@ -148,7 +148,7 @@ char * printArray(JsonItem *item,int depth){
 		free(entities[i]);
 	}
 	free(entities);
-	*ptr++ = '\n';*ptr++ = ']'; *ptr++ = '\n'; *ptr = 0;
+	*ptr++ = '\n';*ptr++ = ']'; *ptr = 0;
 
 	#ifdef TESTMODE
 		printf("%c",*(ptr--));
@@ -163,7 +163,8 @@ char * printObject(JsonItem *item,int depth){
 	char **entities = NULL, **names = NULL;
 	char * out = NULL, *ptr, *ret; char *str;
 	JsonItem *child = item->child;
-	int len = 7,i=0,j =0;
+	// 
+	int len = depth + 2 ,i=0,j =0;
 	int numOfEntities=0,fail = 0;
 	size_t tmplen = 0;
 
@@ -173,15 +174,15 @@ char * printObject(JsonItem *item,int depth){
 		child = child->pre;
 	} 
 	
+	// 空 object 的时候
 	if(!numOfEntities){
-		out = (char*)malloc(depth+4);  // 为什么是这个长度
+		out = (char*)malloc(4);
 		if(!out) return NULL;
-		ptr = out;*ptr++ = '{';
-		*ptr++ = '\0';
-		for(i=0;i<depth-1;i++) *ptr++ ='\t';
-		*ptr++ = '}'; *ptr++ = 0;
+		ptr = out;
+		*ptr++ = '{';*ptr++ = '}';*ptr++ ='\n';*ptr = '\0';
 		return out;
 	}
+
 	entities = (char**)malloc(numOfEntities *sizeof(char*));
 	if(!entities) return 0;
 	names = (char**)malloc(numOfEntities *sizeof(char*));
@@ -194,12 +195,11 @@ char * printObject(JsonItem *item,int depth){
 		str = getString(child->stringKey);
         names[i] = str;
 		entities[i++] = ret = printValue(child,depth);
-		if(str && ret) len += strlen(str) + strlen(ret) + 2 + 2 + depth;
+		// 1 是 ':'  ,2 是 ',' | '\n', depth 是根据深度在前面打 tab ， 还有一个 1 是每行冒号和 value 之间的 tab
+		if(str && ret) len += strlen(str) + strlen(ret) + depth + 1 + 2 + 1;
 		else fail = 1;
 		child = child->next;
 	}
-	// 最后末尾的位置换行一个
-	len++;
 	
 	if(!fail) out = (char*)malloc(len);
 	if(!out) fail = 1;
@@ -217,7 +217,8 @@ char * printObject(JsonItem *item,int depth){
 	for(i=0;i<numOfEntities;i++){
 		for(j=0;j<depth;j++)*ptr++ = '\t';
 		tmplen = strlen(names[i]);memcpy(ptr,names[i],tmplen);ptr+=tmplen;
-		*ptr++ = ':';*ptr++ = '\t';
+		// *ptr++ = ':';*ptr++ = '\t';
+			*ptr++ = ':';*ptr++ = ' ';
 		strcpy(ptr,entities[i]);ptr+=strlen(entities[i]);
 		if (i!=numOfEntities-1) *ptr++=',';
 		*ptr++ = '\n';*ptr=0;
@@ -225,7 +226,7 @@ char * printObject(JsonItem *item,int depth){
 	}
 	free(names);free(entities);
 	for (i=0;i<depth-1;i++) *ptr++='\t';
-	*ptr++='}';*ptr++='\n';*ptr = 0;
+	*ptr++='}';*ptr = 0;
 
 	#ifdef TESTMODE
 		printf("%c",*(ptr--));
