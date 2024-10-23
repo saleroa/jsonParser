@@ -1,6 +1,6 @@
 一个简单的 json 解析器
 
-用于检验 c 语言的 coding 能力 && gbd 调试的能力
+用于检验 c 语言的 coding 能力 && gdb 调试的能力
 
 
 
